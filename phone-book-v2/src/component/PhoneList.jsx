@@ -1,9 +1,32 @@
-import React, { useState } from "react";
+import React, { useReducer, useState } from "react";
 import "../css/PhoneList.css";
 
-const PhoneList = ({ phoneBooks, deletePhoneBooks, editableBooks }) => {
-  const [name, setName] = useState("");
-  const [number, setNumber] = useState("");
+const PhoneList = ({ phoneBooks, deletePhoneBooks,updateBooks, editableBooks }) => {
+  // const [name, setName] = useState("");
+  // const [number, setNumber] = useState("");
+
+  /**
+   * reducer 함수
+   * useReducer로 선언된 state변수들을 통합하여 관리하는 함수이다.
+   * 이 함수는 여러가지 용도로 설정하여 만들수 있다.
+   * 이 함수가 호출될때 어떠한 일을 할지 설정하는 속성이 action.type 있다.
+   * 즉, action.type 값을 임의로 정하여 reducer 함수가 작동되는 방법을 정의할수 있다.
+   * 
+   * 
+   */
+  const reducer = (object, action) =>{
+    //만약 action.type 이 EIDT_FROM 으로 설정되어 reducer가 호출되면
+    // 실행될 코드
+    if(action.type === "EDIT_FROM"){
+      return{name: action.name, number: action.number};
+    }
+    //
+    //input box에 문자열을 입력하는 change이벤트가 발생할때 defult로 실행될 코드
+    return{...object, [action.name]: action.value};
+};
+const [state, dispatch] = useReducer(reducer,{naem: "", number: ""});
+const {name, number} = state;
+
 
   /**
    * tr tag를 클릭했을때 사용할 event 핸들러
@@ -15,7 +38,8 @@ const PhoneList = ({ phoneBooks, deletePhoneBooks, editableBooks }) => {
     console.log(e.target.className);
     const className = e.target.className;
     const closest = e.target.closest("TR");
-    const name = closest.dataset.name; // data-name으로 설정된 값 가져오기
+    const name = closest.childNodes[1].innerText;
+    const number = closest.childNodes[2].innerText;    //closest.dataset.name; // data-name으로 설정된 값 가져오기
     const id = closest.dataset.id; // data-id로 설정된 값 가져오기
 
     console.log(name, id);
@@ -28,19 +52,30 @@ const PhoneList = ({ phoneBooks, deletePhoneBooks, editableBooks }) => {
       }
     }
 
+    if(className === "update-ok"){
+      updateBooks(id, state.name, state.number);
+      return false;
+    }
+
     console.log("go Edit");
+    if(className !== "input"){
+      dispatch({
+        type:"EDIT_FROM", 
+        name: name, 
+        number: number});
+    }
     // delete 칼럼이 아닌 부분을 클릭하면
     // edit 모드로 전환시키기
     editableBooks(id);
   };
 
-  const onNameChange = (e) => {
-    setName(e.target.value);
+  const onChange = (e) => {
+    dispatch(e.target);
   };
 
-  const onNumberChange = (e) => {
-    setNumber(e.target.value);
-  };
+  // const onNumberChange = (e) => {
+  //   setNumber(e.target.value);
+  // };
 
   /**
    * map을 사용하여 배열요소로 화면을 만들때
@@ -54,8 +89,12 @@ const PhoneList = ({ phoneBooks, deletePhoneBooks, editableBooks }) => {
   const phoneList = phoneBooks.map((phone, index) => {
     if (phone.isEdit) {
       console.log(phone.name);
-      setName(phone.name);
-      setNumber(phone.number);
+      // 키보드로 문자열을 입력할때 화면이 rendering 되면서
+      // 2개의 변수가 서로 초기화를 시도해버린다.
+      // 이름을 변경하고 전화번호를 변경하려고 시도하면
+      // 이름이 다시 phoneBook의 데이터로 초기화가 되어버린다.
+      // state.name =  phone.name;
+      // state.number = phone.number;
 
       return (
         <tr
@@ -66,10 +105,10 @@ const PhoneList = ({ phoneBooks, deletePhoneBooks, editableBooks }) => {
         >
           <td>{index + 1}</td>
           <td>
-            <input value={name} onChange={onNameChange} />
+            <input value={name} naem= "name" className="input" onChange={onChange} />
           </td>
           <td>
-            <input value={number} onChange={onNumberChange} />
+            <input value={number} naem= "number" className="input" onChange={onChange} />
           </td>
           <td className="update-ok">&#10003;</td>
         </tr>

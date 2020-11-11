@@ -18,7 +18,7 @@ function PhoneMain(props) {
    * ref 형 변수는 current 속성을 자유롭게 변화시킬수 있고
    * 값이 변화가 되어도 화면이 rendering 되지 않는다.
    */
-  const nextid = useRef(phoneBooks.length);
+  const nextid = useRef(phoneBooks.length && 0);
 
   const insertPhoneBook = (name, number) => {
     /**
@@ -41,6 +41,9 @@ function PhoneMain(props) {
   /**
    * Effect의 두번째 파라메터를 빈값([])으로 설정을 하면
    * 프로젝트가 시작될때(화면이 rendering 될때) 한번만 이벤트가 작동된다.
+   * 
+   * use 로 시작하는 함수들 Hook 함수  class 방식에 있는 Life cycle method 를 대처하는 함수들 
+   * stat , Ref, Efactm reducer
    */
   useEffect(() => {
     console.log("get");
@@ -92,7 +95,18 @@ function PhoneMain(props) {
     });
     setPhoneBooks(editBooks);
   };
-
+  const updateBooks = (id, name, number) =>{  
+    const updateBooks = phoneBooks.map(phone =>{
+    if(phone.id === Number(id)){
+    // 선택된 id와 같은 전화번호는 이름, 번호, 등을 update
+    return {...phone, name: name, number: number, isEdit: false};
+  } else {
+    // 선택된 id와 다른 번호는 isEdit 만 false로 바꾸어서 input 박스가 사라지도록
+     return {...phone, isEdit: false};
+  }
+});
+  setPhoneBooks(updateBooks);
+  };
   return (
     <div className="phoneMain">
       <h3>나만의 전화번호부</h3>
@@ -100,6 +114,7 @@ function PhoneMain(props) {
         phoneBooks={phoneBooks}
         deletePhoneBooks={deletePhoneBooks}
         editableBooks={editableBooks}
+        updateBooks={updateBooks}
       />
       <PhoneInsert insertPhoneBook={insertPhoneBook} />
     </div>

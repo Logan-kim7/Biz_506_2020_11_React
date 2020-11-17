@@ -22,12 +22,9 @@ router.get("/bbsList", (req, res) => {
     .findAll({ order: [["b_date_time", "DESC"]] })
     .then((bbsList) => {
       res.json(bbsList);
-    })
-    .catch((err) => {
-      res.json(err);
+      })
     });
   // res.json(list);
-});
 
 /**
  * web browser로 부터 데이터 전달받기

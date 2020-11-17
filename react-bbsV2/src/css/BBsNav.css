@@ -1,0 +1,23 @@
+nav.main-nav {
+  margin: 0;
+  background-color: olivedrab;
+}
+
+nav.main-nav ul {
+  display: flex;
+}
+nav.main-nav li {
+  display: inline-block;
+  padding: 10px 12px;
+  margin: 3px;
+}
+nav.main-nav .nav-linke {
+  color: white;
+  text-decoration: none;
+  padding: 13px 15px;
+  margin: 0;
+}
+nav.main-nav .nav-link:hover {
+  color: black;
+  background-color: #ddd;
+}

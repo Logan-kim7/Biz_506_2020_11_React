@@ -1,19 +1,21 @@
 import React, { Component } from "react";
 import BBsInsert from "./BBsInsert";
 import BBsList from "./BBsList";
+import axios from "axios";
 
-const BBS_INSERT_URL = "http://localhost:5000/api/insert";
-const BBS_UPDATE_URL = "http://localhost:5000/api/update";
-const BBS_FETCH_URL = "http://localhost:5000/api/bbsList";
-const BBS_FIND_BY_ID = "http://localhost:5000/api/view/";
+const BBS_INSERT_URL = "/api/insert";
+const BBS_UPDATE_URL = "/api/update";
+const BBS_FETCH_URL = "/api/bbsList";
+const BBS_FIND_BY_ID = "/api/view/";
 
 class BBsMain extends Component {
   timer = "";
   state = {
-    state1: "",
-    state2: "",
+    // state1="";
+    // state2="";
     isFetch: false,
     bbsList: [
+      //데이타베이스로부터 데이터를 못가져왔을때 오류가 나는것을 막는방법
       { id: 0, b_writer: "홍길동", b_date: "2020-11-13", b_subject: "게시판" },
       { id: 1, b_writer: "이몽룡", b_date: "2020-11-13", b_subject: "게시판" },
       { id: 2, b_writer: "성춘향", b_date: "2020-11-13", b_subject: "게시판" },
@@ -64,6 +66,29 @@ class BBsMain extends Component {
       .catch((err) => console.log(err));
   };
 
+  bbsSave = (bbsData) => {
+    const {b_id, b_writer,
+      b_subject,
+      b_content, isUpdate,
+    } = bbsData;
+    const url = isUpdate ? BBS_UPDATE_URL : BBS_INSERT_URL;
+    const b_date_time = isUpdate ? bbsData.b_date_time : Date().toString();
+    axios
+      .post(url, {
+        b_id: b_id,
+        b_writer: b_writer,
+        b_subject: b_subject,
+        b_content: b_content,
+        b_date_time : b_date_time,
+      })
+      .then((result) => 
+      console.log(result))
+      this.fetchBBsList();
+      //  .catch((err) => console.log(err));
+  };
+
+
+
   handleUpdate = (id) => {
     fetch(BBS_FIND_BY_ID + id)
       .then((res) => {
@@ -79,21 +104,23 @@ class BBsMain extends Component {
   };
 
   render() {
-    const { bbsList, state1, state2 } = this.state;
+    const{state, bbsSave, fetchBBsList, handleUpdate} = this;
+    const { bbsList, bbsData, isFetch} =this.state;
     return (
       <div>
         <BBsInsert
-          insertURL={BBS_INSERT_URL}
-          updateURL={BBS_UPDATE_URL}
-          bbsData={this.state.bbsData}
+          // insertURL={BBS_INSERT_URL}
+          // updateURL={BBS_UPDATE_URL}
+          bbsSave={bbsSave}
+          bbsData={bbsData}
         />
-        <p>{this.state.isFetch ? "데이터가져오는중..." : "완료"}</p>
+        <p>{isFetch ? "데이터가져오는중..." : "완료"}</p>
         <BBsList
           bbsList={bbsList}
-          fetchBBs={this.fetchBBsList}
-          handleUpdate={this.handleUpdate}
-          state1={state1}
-          state2={state2}
+          fetchBBs={fetchBBsList}
+          handleUpdate={handleUpdate}
+          // state1={state1}
+          // state2={state2}
         />
       </div>
     );
